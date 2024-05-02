@@ -14,7 +14,7 @@ class ARN {
         // Please file an issue if you can find a resource type
         // with a higher documented limit.
         if (text.length > 2048) {
-            throw Error("ARN too long");
+            throw Error("ARN too longg");
         }
 
         // Check for invalid characters.
@@ -22,7 +22,7 @@ class ARN {
         // catch all invalid ARNs, as some resource types have
         // stricter rules. Please file an issue if you are aware
         // of a valid ARN that is rejected by this check.
-        if (!/^[a-zA-Z0-9:/+=,.@_*#\-]*$/.test(text)) {
+        if (!/^[a-zA-Z0-9:/+=,.@_*#$\-]*$/.test(text)) {
             throw Error("ARN contains invalid characters");
         }
 
@@ -164,7 +164,7 @@ class ARN {
                 "analyzer": () => `https://${this.region}.${this.console}/access-analyzer/home?region=${this.region}#/analyzer/${this.resource}`,
             },
             "acm": { // AWS Certificate Manager
-                "certificate": () => `https://${this.console}/acm/home?region=${this.region}#/?id=${this.resource}`,
+                "certificate": () => `https://${this.region}.${this.console}/acm/home?region=${this.region}#certificates/${this.resource}`,
             },
             "acm-pca": { // AWS Certificate Manager Private Certificate Authority
                 "certificate-authority": null,
@@ -182,7 +182,11 @@ class ARN {
                 },
             },
             "apigateway": { // Manage Amazon API Gateway
-                "": null,
+                "": () => {
+					const apiSplit = this.resource.split('/');
+					const apiId = apiSplit[2];
+					return `https://${this.region}.${this.console}/apigateway/main/apis/${apiId}/resources?api=${apiId}&region=${this.region}`
+				},
             },
             "appconfig": { // AWS AppConfig
                 "application": null,
@@ -226,7 +230,7 @@ class ARN {
             "aws-marketplace": { // AWS Marketplace Catalog
             },
             "backup": { // AWS Backup
-                "backup-plan": null,
+                "backup-plan": () => `https://${this.region}.${this.console}/backup/home?region=${this.region}#/backupplan/details/${this.resource}`,
                 "backup-vault": () => `https://${this.console}/backup/home?region=${this.region}#/backupvaults/details/${this.resource}`,
             },
             "batch": { // AWS Batch
@@ -257,7 +261,7 @@ class ARN {
             },
             "cloudformation": { // AWS CloudFormation
                 "changeSet": null,
-                "stack": null,
+                "stack": () => `https://${this.region}.${this.console}/cloudformation/home?region=${this.region}#/stacks/stackinfo?stackId=${this.arn}&viewNested=true`,
                 "stackset": null,
             },
             "cloudfront": { // Amazon CloudFront
@@ -273,10 +277,10 @@ class ARN {
                 "domain": null,
             },
             "cloudtrail": { // AWS CloudTrail
-                "trail": null,
+                "trail": () => `https://${this.region}.${this.console}/cloudtrailv2/home?region=${this.region}#/trails/${this.arn}`,
             },
             "cloudwatch": { // Amazon CloudWatch
-                "alarm": null,
+                "alarm": () => `https://${this.region}.${this.console}/cloudwatch/home?region=${this.region}#alarmsV2:alarm/${this.resource}`,
                 "dashboard": null,
                 "insight-rule": null,
             },
@@ -287,7 +291,7 @@ class ARN {
             },
             "codebuild": { // AWS CodeBuild
                 "build": null,
-                "project": null,
+                "project": () => `https://${this.region}.${this.console}/codesuite/codebuild/${this.account}/projects/${this.resource}/history?region=${this.region}`,
                 "report": null,
                 "report-group": null,
             },
@@ -432,10 +436,11 @@ class ARN {
                 "dedicated-host": null,
                 "dhcp-options": null,
                 "elastic-gpu": null,
+				"eip": () => `https://${this.region}.${this.console}/vpcconsole/home?region=${this.region}#ElasticIpDetails:AllocationId=${this.resource}`,
                 "fpga-image": null,
                 "image": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#ImageDetails:imageId=${this.resource}`,
-                "instance": () => `https://${this.region}.${this.console}/ec2/v2/home`,
-                "internet-gateway": null,
+                "instance": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#InstanceDetails:instanceId=${this.resource}`,
+                "internet-gateway": () => `https://${this.region}.${this.console}/vpcconsole/home?region=${this.region}#InternetGateway:internetGatewayId=${this.resource}`,
                 "key-pair": null,
                 "launch-template": null,
                 "local-gateway": null,
@@ -444,13 +449,14 @@ class ARN {
                 "local-gateway-route-table-vpc-association": null,
                 "local-gateway-virtual-interface": null,
                 "local-gateway-virtual-interface-group": null,
-                "network-acl": null,
-                "network-interface": null,
+				"natgateway": () => `https://${this.region}.${this.console}/vpcconsole/home?region=${this.region}#NatGatewayDetails:natGatewayId=${this.resource}`,
+                "network-acl": () => `https://${this.region}.${this.console}/vpcconsole/home?region=${this.region}##NetworkAclDetails:networkAclId=${this.resource}`,
+                "network-interface": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#NetworkInterface:networkInterfaceId=${this.resource}`,
                 "placement-group": null,
                 "reserved-instances": null,
-                "route-table": null,
+                "route-table": () => `https://${this.region}.${this.console}/vpcconsole/home?region=${this.region}#RouteTableDetails:RouteTableId=${this.resource}`,
                 "security-group": () => `https://${this.region}.${this.console}/vpc/home?region=${this.region}#SecurityGroup:groupId=${this.resource}`,
-                "snapshot": null,
+                "snapshot": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#SnapshotDetails:snapshotId=${this.resource}`,
                 "spot-instances-request": null,
                 "subnet": () => `https://${this.region}.${this.console}/vpc/home?region=${this.region}#SubnetDetails:subnetId=${this.resource}`,
                 "traffic-mirror-filter": null,
@@ -461,7 +467,7 @@ class ARN {
                 "transit-gateway-attachment": null,
                 "transit-gateway-multicast-domain": null,
                 "transit-gateway-route-table": null,
-                "volume": null,
+                "volume": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#VolumeDetails:volumeId=${this.resource}`,
                 "vpc": () => `https://${this.region}.${this.console}/vpc/home?region=${this.region}#VpcDetails:VpcId=${this.resource}`,
                 "vpc-endpoint": null,
                 "vpc-endpoint-service": null,
@@ -471,7 +477,7 @@ class ARN {
                 "vpn-gateway": null,
             },
             "ecr": { // Amazon Elastic Container Registry
-                "repository": null,
+                "repository": () => `https://${this.region}.${this.console}/ecr/repositories/private/${this.account}/${this.resource}?region=${this.region}`,
             },
             "ecs": { // Amazon Elastic Container Service
                 "cluster": () => `https://${this.region}.${this.console}/ecs/v2/clusters/${this.resource}?region=${this.region}`,
@@ -504,12 +510,12 @@ class ARN {
             },
             "elasticfilesystem": { // Amazon Elastic File System
                 "access-point": null,
-                "file-system": null,
+                "file-system": () => `https://${this.region}.${this.console}/efs/home?region=${this.region}#file-systems`,
             },
             "elasticloadbalancing": { // AWS WAF V2
                 "listener": null,
                 "listener-rule": null,
-                "loadbalancer": null,
+                "loadbalancer": () => `https://${this.region}.${this.console}/ec2/home?region=${this.region}#LoadBalancer:loadBalancerArn=${this.arn};tab=listeners`,
                 "targetgroup": null,
             },
             "elasticmapreduce": { // Amazon Elastic MapReduce
@@ -595,7 +601,7 @@ class ARN {
                 "satellite": null,
             },
             "guardduty": { // Amazon GuardDuty
-                "detector": null,
+                "detector": () => `https://${this.region}.${this.console}/guardduty/home?region=${this.region}#/summary`,
             },
             "health": { // AWS Health APIs and Notifications
                 "event": null,
@@ -617,7 +623,10 @@ class ARN {
                 "saml-provider": null,
                 "server-certificate": null,
                 "sms-mfa": null,
-                "user": () => `https://${this.console}/iam/home?#/users/${this.resource}`,
+                "user": () => {
+					const userName = this.resource.split('/')[0];
+					return `https://${this.console}/iam/home?#/users/${userName}`
+				}
             },
             "imagebuilder": { // Amazon EC2 Image Builder
                 "component": null,
@@ -866,7 +875,7 @@ class ARN {
                 "cluster": () => `https://${this.console}/rds/home?region=${this.region}#database:id=${this.resource};is-cluster=true`,
                 "cluster-endpoint": null,
                 "cluster-pg": null,
-                "cluster-snapshot": null,
+                "cluster-snapshot": () => `https://${this.region}.${this.console}/rds/home?region=${this.region}#snapshots-list:`,
                 "db": () => `https://${this.console}/rds/home?region=${this.region}#database:id=${this.resource}`,
                 "db-proxy": null,
                 "es": null,
@@ -924,6 +933,9 @@ class ARN {
                 "trafficpolicy": () => `https://${this.console}/route53/trafficflow/home#/policy/${this.resource}`,
                 "trafficpolicyinstance": () => `https://${this.console}/route53/trafficflow/home#/modify-records/edit/${this.resource}`,
             },
+			"route53domains": { // Amazon Route 53 Domain
+                "domain": () => `https://${this.console}/route53/domains/home?#/DomainDetails/${this.resource}`,
+            },
             "route53resolver": { // Amazon Route 53 Resolver
                 "resolver-endpoint": null,
                 "resolver-rule": null,
@@ -974,10 +986,11 @@ class ARN {
                 "domain": null,
             },
             "secretsmanager": { // AWS Secrets Manager
-                "secret": null,
+				// will need to pur secret manager name rather than id 
+                "secret": () => `https://${this.region}.${this.console}/secretsmanager/listsecrets?region=${this.region}`,
             },
             "securityhub": { // AWS Security Hub
-                "hub": null,
+                "hub": () => `https://${this.region}.${this.console}/securityhub/home?region=${this.region}#summary`,
                 "product": null,
             },
             "serverlessrepo": { // AWS Serverless Application Repository
@@ -1018,7 +1031,7 @@ class ARN {
                 "automation-execution": null,
                 "document": null,
                 "maintenancewindow": null,
-                "managed-instance": null,
+                "managed-instance": () => `https://${this.region}.${this.console}/systems-manager/fleet-manager/managed-nodes/${this.resource}/general?region=${this.region}`,
                 "managed-instance-inventory": null,
                 "opsitem": null,
                 "parameter": null,
